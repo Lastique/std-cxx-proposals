@@ -1,8 +1,8 @@
-Document number: Nnnnn=yy-nnnn
-Date: 2016-10-23
-Project: ISO JTC1/SC22/WG21: Programming Language C++
-Author: Andrey Semashev &lt;andrey.semashev at gmail dot com&gt;
-Reply-to: Andrey Semashev &lt;andrey.semashev at gmail dot com&gt;
+| Document number: | Nnnnn=yy-nnnn |
+| Date: | 2016-10-23 |
+| Project: | ISO JTC1/SC22/WG21: Programming Language C++ |
+| Author: | Andrey Semashev &lt;andrey.semashev at gmail dot com&gt; |
+| Reply-to: | Andrey Semashev &lt;andrey.semashev at gmail dot com&gt; |
 
 # Introduction
 
@@ -178,7 +178,7 @@ The macro <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) has the same 
 <li>if the <i>member-designator</i> argument identifies a member <i>m</i> that is nested <i>N</i> levels deep in members <i>n<sub>N</sub></i>, then the type of <i>n<sub>i</sub></i> shall be a (possibly <i>cv</i>-qualified) stable-layout class or an array thereof, for 0 &lt;= <i>i</i> &lt;= <i>N</i>.</li>
 </ul>
 </ins>Use of the <tt>offsetof</tt> macro with <del>a type</del><ins>types</ins> other than <del>a standard-layout class (Clause 9)</del><ins>specified above</ins> is conditionally-supported. The expression <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) is never type-dependent (14.6.2.2) and it is value-dependent (14.6.2.3) if and only if <i>type</i> is dependent. The result of applying the <tt>offsetof</tt> macro to a static data member or a function member is undefined.<ins> If <i>member-designator</i> refers to a reference data member at any member nesting level or identifies a reference data member, the result of the <tt>offsetof</tt> macro is undefined.</ins> No operation invoked by the <tt>offsetof</tt> macro shall throw an exception and <tt>noexcept(offsetof(type, member-designator))</tt> shall be <tt>true</tt>.<ins><br/>
-<i>[Example:</i><code>
+<i>[Example:</i><code><pre>
 struct A { int a; };
 struct V : public virtual A { int x; };
 struct R
@@ -195,7 +195,7 @@ void f() {
     offsetof(R, r);   // undefined behavior, R::r is a reference
     offsetof(R, r.a); // the same
 }
-</code><i>&mdash; end example]</i>
+</pre></code><br/><i>&mdash; end example]</i>
 </ins>
 
 # Acknowledgements
