@@ -98,7 +98,7 @@ Like virtual functions, virtual base classes also typically introduce a hidden d
 
 # Impact on existing implementations
 
-The currently widespread compilers (GCC 6.2, Clang 3.8) all support `offsetof` for classes `A`, `B` and `C` described before, although the compilers emit warnings. The implementation complexity is expected to be minimal.
+The currently widespread compilers (GCC 6.2, Clang 3.8, MSVC 19) all support `offsetof` for classes `A`, `B` and `C` described before, although some of the compilers emit warnings. The implementation complexity is expected to be minimal.
 
 # Technical Specifications
 
