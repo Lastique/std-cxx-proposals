@@ -157,45 +157,45 @@ offsetof(E, v.c); // conditionally-supported, not allowed by this proposal becau
 
 The proposed wording below is given relative to N4606.
 
-- Add a new paragraph after [class]/7:
+* Add a new paragraph after [class]/7:
 
-<ins>A <i>stable-layout class</i> is a class:
-<ul>
-<li>that has no virtual base classes (10.1)</li>
-<li>that has no virtual functions (10.3)</li>
-</ul>
-For any object <i>x<sub>i</sub></i> of a stable-layout class <i>X</i>, each non-static data member address relative to the starting address of <i>x<sub>i</sub></i> shall be constant and equal to the corresponding address in any other <i>x<sub>j</sub></i>.<br/>
-<i>[Note:</i> A stable-layout class can contain members that are not stable-layout themselves. <i>&mdash; end note]</i></ins><br/>
+    <ins>A <i>stable-layout class</i> is a class:
+    <ul>
+    <li>that has no virtual base classes (10.1)</li>
+    <li>that has no virtual functions (10.3)</li>
+    </ul>
+    For any object <i>x<sub>i</sub></i> of a stable-layout class <i>X</i>, each non-static data member address relative to the starting address of <i>x<sub>i</sub></i> shall be constant and equal to the corresponding address in any other <i>x<sub>j</sub></i>.<br/>
+    <i>[Note:</i> A stable-layout class can contain members that are not stable-layout themselves. <i>&mdash; end note]</i></ins><br/>
 
-- Modify [class]/8:
+* Modify [class]/8:
 
-A <i>standard-layout struct</i> is a standard-layout class defined with the <i>class-key</i> <tt>struct</tt> or the <i>class-key</i> <tt>class</tt>. A <i>standard-layout union</i> is a standard-layout class defined with the <i>class-key</i> <tt>union</tt>.<ins> A <i>stable-layout struct</i> is a stable-layout class defined with the <i>class-key</i> <tt>struct</tt> or the <i>class-key</i> <tt>class</tt>. A <i>stable-layout union</i> is a stable-layout class defined with the <i>class-key</i> <tt>union</tt>.</ins><br/>
+    A <i>standard-layout struct</i> is a standard-layout class defined with the <i>class-key</i> <tt>struct</tt> or the <i>class-key</i> <tt>class</tt>. A <i>standard-layout union</i> is a standard-layout class defined with the <i>class-key</i> <tt>union</tt>.<ins> A <i>stable-layout struct</i> is a stable-layout class defined with the <i>class-key</i> <tt>struct</tt> or the <i>class-key</i> <tt>class</tt>. A <i>stable-layout union</i> is a stable-layout class defined with the <i>class-key</i> <tt>union</tt>.</ins><br/>
 
-- Modify [support.types.layout]/1:
+* Modify [support.types.layout]/1:
 
-The macro <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) has the same semantics as the corresponding macro in the C standard library header <tt>&lt;stddef.h&gt;</tt>, but accepts a restricted set of <i>type</i><ins> and <i>member-designator</i></ins> arguments in this International Standard.<ins> The following restrictions apply:
-<ul>
-<li>the <i>type</i> argument shall identify a stable-layout class (Clause 9);</li>
-<li>if the <i>member-designator</i> argument identifies a member <i>m</i> that is nested <i>N</i> levels deep in members <i>n<sub>N</sub></i>, then the type of <i>n<sub>i</sub></i> shall be a (possibly <i>cv</i>-qualified) stable-layout class or an array thereof, for 0 &lt;= <i>i</i> &lt;= <i>N</i>.</li>
-</ul>
-</ins>Use of the <tt>offsetof</tt> macro with <del>a type</del><ins>types</ins> other than <del>a standard-layout class (Clause 9)</del><ins>specified above</ins> is conditionally-supported. The expression <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) is never type-dependent (14.6.2.2) and it is value-dependent (14.6.2.3) if and only if <i>type</i> is dependent. The result of applying the <tt>offsetof</tt> macro to a static data member or a function member is undefined.<ins> If <i>member-designator</i> refers to a reference data member at any member nesting level or identifies a reference data member, the result of the <tt>offsetof</tt> macro is undefined.</ins> No operation invoked by the <tt>offsetof</tt> macro shall throw an exception and <tt>noexcept(offsetof(type, member-designator))</tt> shall be <tt>true</tt>.<ins><br/>
-<i>[Example:</i><br/><code><pre>struct A { int a; };
-struct V : public virtual A { int x; };
-struct R
-{
-    A a;
-    A&amp; r;
-    V v;
-};
+    The macro <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) has the same semantics as the corresponding macro in the C standard library header <tt>&lt;stddef.h&gt;</tt>, but accepts a restricted set of <i>type</i><ins> and <i>member-designator</i></ins> arguments in this International Standard.<ins> The following restrictions apply:
+    <ul>
+    <li>the <i>type</i> argument shall identify a stable-layout class (Clause 9);</li>
+    <li>if the <i>member-designator</i> argument identifies a member <i>m</i> that is nested <i>N</i> levels deep in members <i>n<sub>N</sub></i>, then the type of <i>n<sub>i</sub></i> shall be a (possibly <i>cv</i>-qualified) stable-layout class or an array thereof, for 0 &lt;= <i>i</i> &lt;= <i>N</i>.</li>
+    </ul>
+    </ins>Use of the <tt>offsetof</tt> macro with <del>a type</del><ins>types</ins> other than <del>a standard-layout class (Clause 9)</del><ins>specified above</ins> is conditionally-supported. The expression <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) is never type-dependent (14.6.2.2) and it is value-dependent (14.6.2.3) if and only if <i>type</i> is dependent. The result of applying the <tt>offsetof</tt> macro to a static data member or a function member is undefined.<ins> If <i>member-designator</i> refers to a reference data member at any member nesting level or identifies a reference data member, the result of the <tt>offsetof</tt> macro is undefined.</ins> No operation invoked by the <tt>offsetof</tt> macro shall throw an exception and <tt>noexcept(offsetof(type, member-designator))</tt> shall be <tt>true</tt>.<ins><br/>
+    <i>[Example:</i><code><pre>struct A { int a; };
+    struct V : public virtual A { int x; };
+    struct R
+    {
+        A a;
+        A&amp; r;
+        V v;
+    };
 
-void f() {
-    offsetof(R, v);   // ok, R is a stable-layout class
-    offsetof(R, a.a); // ok, both R and A are stable-layout classes
-    offsetof(R, v.x); // conditionally-supported, V is not a stable-layout class
-    offsetof(R, r);   // undefined behavior, R::r is a reference
-    offsetof(R, r.a); // the same
-}</pre></code><br/><i>&mdash; end example]</i>
-</ins>
+    void f() {
+        offsetof(R, v);   // ok, R is a stable-layout class
+        offsetof(R, a.a); // ok, both R and A are stable-layout classes
+        offsetof(R, v.x); // conditionally-supported, V is not a stable-layout class
+        offsetof(R, r);   // undefined behavior, R::r is a reference
+        offsetof(R, r.a); // the same
+    }</pre></code><i>&mdash; end example]</i>
+    </ins>
 
 # Acknowledgements
 
