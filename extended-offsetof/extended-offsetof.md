@@ -159,12 +159,12 @@ The proposed wording below is given relative to N4606. Inserted text is marked l
 
 Add a new paragraph after [class]/7:
 
-<p><ins>A <i>stable-layout class</i> is a class:
+<p><ins>A <i>stable-layout class</i> is a class:</ins>
 <ul>
-<li>that has no virtual base classes (10.1)</li>
-<li>that has no virtual functions (10.3)</li>
+<li><ins>that has no virtual base classes (10.1)</ins></li>
+<li><ins>that has no virtual functions (10.3)</ins></li>
 </ul>
-For any object <i>x<sub>i</sub></i> of a stable-layout class <i>X</i>, each non-static data member address relative to the starting address of <i>x<sub>i</sub></i> shall be constant and equal to the corresponding address in any other <i>x<sub>j</sub></i>.<br/>
+<ins>For any object <i>x<sub>i</sub></i> of a stable-layout class <i>X</i>, each non-static data member address relative to the starting address of <i>x<sub>i</sub></i> shall be constant and equal to the corresponding address in any other <i>x<sub>j</sub></i>.<br/>
 <i>[Note:</i> A stable-layout class can contain members that are not stable-layout themselves. <i>&mdash; end note]</i></ins></p>
 
 Modify [class]/8:
@@ -173,12 +173,12 @@ Modify [class]/8:
 
 Modify [support.types.layout]/1:
 
-<p>The macro <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) has the same semantics as the corresponding macro in the C standard library header <tt>&lt;stddef.h&gt;</tt>, but accepts a restricted set of <i>type</i><ins> and <i>member-designator</i></ins> arguments in this International Standard.<ins> The following restrictions apply:
+<p>The macro <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) has the same semantics as the corresponding macro in the C standard library header <tt>&lt;stddef.h&gt;</tt>, but accepts a restricted set of <i>type</i><ins> and <i>member-designator</i></ins> arguments in this International Standard.<ins> The following restrictions apply:</ins>
 <ul>
-<li>the <i>type</i> argument shall identify a stable-layout class (Clause 9);</li>
-<li>if the <i>member-designator</i> argument identifies a member <i>m</i> that is nested <i>N</i> levels deep in members <i>n<sub>N</sub></i>, then the type of <i>n<sub>i</sub></i> shall be a (possibly <i>cv</i>-qualified) stable-layout class or an array thereof, for 0 &lt;= <i>i</i> &lt;= <i>N</i>.</li>
+<li><ins>the <i>type</i> argument shall identify a stable-layout class (Clause 9);</ins></li>
+<li><ins>if the <i>member-designator</i> argument identifies a member <i>m</i> that is nested <i>N</i> levels deep in members <i>n<sub>N</sub></i>, then the type of <i>n<sub>i</sub></i> shall be a (possibly <i>cv</i>-qualified) stable-layout class or an array thereof, for 0 &lt;= <i>i</i> &lt;= <i>N</i>.</ins></li>
 </ul>
-</ins>Use of the <tt>offsetof</tt> macro with <del>a type</del><ins>types</ins> other than <del>a standard-layout class (Clause 9)</del><ins>specified above</ins> is conditionally-supported. The expression <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) is never type-dependent (14.6.2.2) and it is value-dependent (14.6.2.3) if and only if <i>type</i> is dependent. The result of applying the <tt>offsetof</tt> macro to a static data member or a function member is undefined.<ins> If <i>member-designator</i> refers to a reference data member at any member nesting level or identifies a reference data member, the result of the <tt>offsetof</tt> macro is undefined.</ins> No operation invoked by the <tt>offsetof</tt> macro shall throw an exception and <tt>noexcept(offsetof(type, member-designator))</tt> shall be <tt>true</tt>.<ins><br/>
+Use of the <tt>offsetof</tt> macro with <del>a type</del><ins>types</ins> other than <del>a standard-layout class (Clause 9)</del><ins>specified above</ins> is conditionally-supported. The expression <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) is never type-dependent (14.6.2.2) and it is value-dependent (14.6.2.3) if and only if <i>type</i> is dependent. The result of applying the <tt>offsetof</tt> macro to a static data member or a function member is undefined.<ins> If <i>member-designator</i> refers to a reference data member at any member nesting level or identifies a reference data member, the result of the <tt>offsetof</tt> macro is undefined.</ins> No operation invoked by the <tt>offsetof</tt> macro shall throw an exception and <tt>noexcept(offsetof(type, member-designator))</tt> shall be <tt>true</tt>.<ins><br/>
 <i>[Example:</i><code><pre>struct A { int a; };
 struct V : public virtual A { int x; };
 struct R
