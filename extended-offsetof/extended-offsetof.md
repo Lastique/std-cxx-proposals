@@ -404,11 +404,11 @@ void f() {
 }</pre></code><i>&mdash; end example]</i>
 </ins></p>
 
-# Acknowledgements
+# 8. Acknowledgements
 
- - Thanks to all paricipants in the discussion of the proposal at the [std-discussion] mailing list, and in particular to "Myriachan" &lt;myriachan at gmail dot com&gt; for the suggested example showing that trivially-copyable types should be supported by `offsetof`.
+ - Thanks to all paricipants in the discussion of the proposal at the [std-discussion] and [std-proposals] mailing lists, and in particular to "Myriachan" &lt;myriachan at gmail dot com&gt; for the suggested example showing that trivially-copyable types should be supported by `offsetof`.
 
-# References
+# 9. References
 
  - [IA-64 C++ ABI](https://mentorembedded.github.io/cxx-abi/abi.html)
  - [CWG Issue 1701](http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1701)
