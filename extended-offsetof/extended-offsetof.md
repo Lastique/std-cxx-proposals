@@ -385,21 +385,21 @@ void f() {
 
 Modify [meta.type.synop]/1. After the `is_standard_layout` type trait declaration, add the new line:
 
-<ins><code><pre>template &lt;class T&gt; struct is_stable_layout;</pre></code></ins>
+<code><pre><ins>template &lt;class T&gt; struct is_stable_layout;</ins></pre></code>
 
 In the same section, after the `is_standard_layout_v` variable template declaration, add the new declaration:
 
-<ins><code><pre>template &lt;class T&gt; constexpr bool is_stable_layout_v
-  = is_stable_layout&lt;T&gt;::value;</pre></code></ins>
+<code><pre><ins>template &lt;class T&gt; constexpr bool is_stable_layout_v
+  = is_stable_layout&lt;T&gt;::value;</ins></pre></code>
 
 Modify [meta.unary.prop]/4, Table 42. Add a new row after `is_standard_layout` with the following contents (table header repeated for convenience):
 
 <table>
 <tr><th>Template</th><th>Condition</th><th>Precondition</th></tr>
 <tr>
-<td><ins><code><pre>template &lt;class T&gt;
-struct is_stable_layout;</pre></code>
-</ins></td>
+<td><code><pre><ins>template &lt;class T&gt;
+struct is_stable_layout;</ins></pre></code>
+</td>
 <td><ins><tt>T</tt> is a stable-layout type (3.9)</tt></ins></td>
 <td><ins><tt>remove_all_extents_t&lt;T&gt;</tt> shall be a complete type or (possibly cv-qualified) <tt>void</tt>.</ins></td>
 </tr>
