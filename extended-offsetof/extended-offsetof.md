@@ -356,7 +356,8 @@ Modify [class]/8:
 Modify [support.types.layout]/1:
 
 <p>The macro <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) has the same semantics as the corresponding macro in the C standard library header <tt>&lt;stddef.h&gt;</tt>, but accepts a restricted set of <i>type</i><ins> and <i>member-designator</i></ins> arguments in this International Standard. Use of the <tt>offsetof</tt> macro with a <i>type</i> other than a <del>standard-layout</del><ins>stable-layout</ins> class (Clause 9) is conditionally-supported. The expression <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) is never type-dependent (14.6.2.2) and it is value-dependent (14.6.2.3) if and only if <i>type</i> is dependent. The result of applying the <tt>offsetof</tt> macro to a static data member or a function member is undefined.<ins> If <i>member-designator</i> accesses or identifies a reference data member, the result of the <tt>offsetof</tt> macro is undefined.</ins> No operation invoked by the <tt>offsetof</tt> macro shall throw an exception and <tt>noexcept(offsetof(<i>type</i>, <i>member-designator</i>))</tt> shall be <tt>true</tt>.<ins><br/>
-<i>[Example:</i></ins><code><pre><ins>struct A { int n; };
+<i>[Example:</i></ins>
+<pre><code><ins>struct A { int n; };
 struct B { A a; };
 struct V : public virtual A { int x; };
 struct R
@@ -380,25 +381,25 @@ void f() {
     offsetof(Q, a);         // conditionally-supported, Q is not a stable-layout class because of Q::v
     offsetof(Q, v);         // the same
     offsetof(Q, v.n);       // the same
-}</ins></pre></code><ins><i>&mdash; end example]</i>
+}</ins></code></pre><ins><i>&mdash; end example]</i>
 </ins></p>
 
 Modify [meta.type.synop]/1. After the `is_standard_layout` type trait declaration, add the new line:
 
-<code><pre><ins>template &lt;class T&gt; struct is_stable_layout;</ins></pre></code>
+<pre><code><ins>template &lt;class T&gt; struct is_stable_layout;</ins></code></pre>
 
 In the same section, after the `is_standard_layout_v` variable template declaration, add the new declaration:
 
-<code><pre><ins>template &lt;class T&gt; constexpr bool is_stable_layout_v
-  = is_stable_layout&lt;T&gt;::value;</ins></pre></code>
+<pre><code><ins>template &lt;class T&gt; constexpr bool is_stable_layout_v
+  = is_stable_layout&lt;T&gt;::value;</ins></code></pre>
 
 Modify [meta.unary.prop]/4, Table 42. Add a new row after `is_standard_layout` with the following contents (table header repeated for convenience):
 
 <table>
 <tr><th>Template</th><th>Condition</th><th>Precondition</th></tr>
 <tr>
-<td><code><pre><ins>template &lt;class T&gt;
-struct is_stable_layout;</ins></pre></code>
+<td><pre><code><ins>template &lt;class T&gt;
+struct is_stable_layout;</ins></code></pre>
 </td>
 <td><ins><tt>T</tt> is a stable-layout type (3.9)</tt></ins></td>
 <td><ins><tt>remove_all_extents_t&lt;T&gt;</tt> shall be a complete type or (possibly cv-qualified) <tt>void</tt>.</ins></td>
@@ -414,4 +415,3 @@ struct is_stable_layout;</ins></pre></code>
 
  - [N4618 Working Draft, Standard for Programming Language C++](http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/n4618.pdf)
  - [Itanium C++ ABI](https://mentorembedded.github.io/cxx-abi/abi.html)
- - [CWG Issue 1701](http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1701), Array vs sequence in object representation.
