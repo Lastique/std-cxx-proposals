@@ -304,8 +304,8 @@ Since the standard does not currently define a suitable category of types, this 
 
  - no virtual base classes
  - no virtual functions
- - no non-static data members of a class type (or an array thereof) that violates the above conditions
- - no base classes that violate the above conditions
+ - no non-static data members of types other than one of the following: a (possibly cv-qualified) scalar type or a stable-layout class, an array of such a type, or a reference type
+ - no non-stable-layout base classes
 
 Objects of a stable-layout class shall be guaranteed to occupy contiguous bytes of storage. For a stable-layout class, it shall be guaranteed that relative positions (offsets) of non-static data members are known at compile time and constant across all objects of that class. These offsets shall account for any possible padding that is added between non-static data members to achieve alignment.
 
@@ -342,6 +342,12 @@ Modify [intro.object]/7:
 <p>Unless it is a bit-field (9.2.4), a most derived object shall have a nonzero size and shall occupy one or more bytes of storage. Base class subobjects may have zero size. An object of <del>trivially copyable or standard-layout</del><ins>stable-layout</ins> type (3.9) shall occupy contiguous bytes of storage.</p>
 </blockquote>
 
+Modify [basic.types]/9:
+
+<blockquote>
+<p>Arithmetic types (3.9.1), enumeration types, pointer types, pointer to member types (3.9.2), <tt>std::nullptr_t</tt>, and cv-qualified versions of these types (3.9.3) are collectively called <i>scalar types</i>. Scalar types, POD classes (Clause 9), arrays of such types and cv-qualified versions of these types (3.9.3) are collectively called <i>POD types</i>. Cv-unqualified scalar types, trivially copyable class types (Clause 9), arrays of such types, and cv-qualified versions of these types (3.9.3) are collectively called <i>trivially copyable types</i>. Scalar types, trivial class types (Clause 9), arrays of such types and cv-qualified versions of these types (3.9.3) are collectively called <i>trivial types</i>. Scalar types, standard-layout class types (Clause 9), arrays of such types and cv-qualified versions of these types (3.9.3) are collectively called <i>standard-layout types</i>.<ins> Scalar types, stable-layout class types (Clause 9), arrays of such types and cv-qualified versions of these types (3.9.3) are collectively called <i>stable-layout types</i>.</ins></p>
+</blockquote>
+
 Add a new paragraph after [class]/7:
 
 <blockquote>
@@ -349,10 +355,10 @@ Add a new paragraph after [class]/7:
 <ul>
 <li><ins>has no virtual base classes (10.1)</ins></li>
 <li><ins>has no virtual functions (10.3)</ins></li>
-<li><ins>has no non-static data members of a class type (or an array of a class type) that violates the above conditions</ins></li>
-<li><ins>has no base classes that violate the above conditions</ins></li>
+<li><ins>has no non-static data members of types other than a stable-layout type (3.9) or a reference (3.9.2)</ins></li>
+<li><ins>has no non-stable-layout base classes</ins></li>
 </ul>
-<ins>For any object <i>x<sub>i</sub></i> of a stable-layout class <i>X</i>, offset in bytes of each non-static non-reference data member from the starting address of <i>x<sub>i</sub></i> shall be constant and equal to the corresponding offset in any other <i>x<sub>j</sub></i>.</ins></p>
+<ins>Given an object <i>x<sub>i</sub></i> of a stable-layout class <i>X</i>, for each non-static non-reference data member <i>m<sub>j</sub></i> of <i>X</i>, offset in bytes from the address of <i>x<sub>i</sub></i> to the address of <i>m<sub>j</sub></i> within <i>x<sub>i</sub></i> shall be constant and equal to the corresponding offset in any other object of class <i>X</i>.</ins></p>
 </blockquote>
 
 Modify [class]/8:
