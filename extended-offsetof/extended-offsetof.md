@@ -1,15 +1,15 @@
 <table>
-<tr><td>Title:</td><td>A Proposal of Stable-Layout Classes and Extended <tt>offsetof</tt></td></tr>
+<tr><td>Title:</td><td>Supporting <tt>offsetof</tt> for stable-layout Classes</td></tr>
 <tr><td>Document number:</td><td>DnnnnR0</td></tr>
 <tr><td>Date:</td><td>2016-10-23</td></tr>
 <tr><td>Project:</td><td>ISO JTC1/SC22/WG21: Programming Language C++</td></tr>
-<tr><td>Audience:</td><td>Evolution Working Group</td></tr>
+<tr><td>Audience:</td><td>LEWG, EWG</td></tr>
 <tr><td>Reply-to:</td><td>Andrey Semashev &lt;andrey.semashev at gmail dot com&gt;</td></tr>
 </table>
 
 # 1. Introduction
 
-This proposal introduces a *stable layout class* definition and extends the set of types required to be supported by `offsetof`.
+This proposal introduces a *stable layout class* definition and extends the set of types `offsetof` is required to support.
 
 # 2. Motivation and Scope
 
@@ -29,11 +29,11 @@ struct B : A
 
 Imagine that an application needs to pass objects of type `B` between multiple processes via shared memory. The classes are trivially copyable, so the simplest way to do that is to use `std::memcpy`. Occasionally, a process needs only one member of `B` (say, `B::b`). In order to extract it from the shared memory storage occupied by the complete object of `B`, the application needs to know the offset of `B::b` relative to the starting address of the `B` object. This offset is normally provided by `offsetof`, but formally the macro cannot be applied in this case because `B` is not a standard-layout class. That is because more than one class in the hierarchy has non-static data members.
 
-It is understandable that the current definition of `offsetof` in C++ mostly just refers to the C standard, for the best compatibility with C. C++ offers more advanced means for type definition, including type inheritance, methods, constructors and destructors, yet it doesn't extend `offsetof` to support these types even when feasible. This proposal attempts to mitigate this omission.
+It is understandable that the current definition of `offsetof` in C++ mostly just refers to the C standard, for the best compatibility with C. However, C++ offers more advanced means for type definition, including type inheritance, methods, constructors and destructors, yet it doesn't extend `offsetof` to support these types even when feasible. This proposal attempts to mitigate this omission.
 
 ## 2.1. Alternative Solutions
 
-There are a number of alternative solutions that could be used to achieve the desired functionality without extending `offsetof`. This section offers a discussion of these alternatives and the reasoning for still preferring `offsetof` extension.
+A number of alternative solutions could be used to achieve the desired functionality without extending `offsetof`. This section offers a discussion of these alternatives and the reasoning for still preferring `offsetof` extension.
 
 ### 2.1.1. Convert structures to standard layout
 
@@ -180,13 +180,13 @@ struct encoded_video_frame
 };
 ```
 
-While that unifies access to all fields of the structures, this also adds a lot of verbosity to the structures' definition. Adding, removing or modifying any member of the base structures also requires similar modifications to all containing structures. This is much more tedious and error prone than the original code that used inheritance. The author is also convinced that the original code is a more appropriate design choice from the standpoint of semantic relations between the classes - each derived class is a specialization and extension of its base classes.
+While that unifies access to all fields of the structures, this also adds a lot of verbosity to the structures' definition. Adding, removing, or modifying any member of the base structures also requires similar modifications to all containing structures. This is much more tedious and error prone than the original code that used inheritance. The author is also convinced that the original code is a more appropriate design choice from the standpoint of semantic relations between the classes, as each derived class is a specialization and extension of its base classes.
 
 #### 2.1.1.1. Aren't standard-layout classes required for inter-process communication anyway?
 
 The short answer to that question is no, they are not required. As long as the programs exchanging data are built with compilers that implement the same ABI specification, or different ABI specifications that are compatible with regard to types' representation, these programs shall be compatible. This guarantee is given by the ABI specification, not by the C++ standard. The standard-layout property by itself does not guarantee binary compatibility, nor is it a required precondition for one. What standard-layout offers is a set of restrictions on C++ types so that they are compatible, on the language level, with a similar structure in another language (primarilly, the C language), provided that ABI specifications for the two languages are compatible. However, when compatibility with languages other than C++ is not required, the restrictions imposed by a standard-layout class can be too limiting. Even when the two processes comply with different ABIs that are not fully compatible, there can be a less restricted subset of C++ features that can be used portably.
 
-The existing practice on most current platforms is that there is one C++ ABI specification per target architecture that is supported by all or most compilers on the platform. One notable exception is Windows, where there are two ABIs commonly used: Microsoft's (supported by MSVC, Intel compiler, clang-cl) and GCC (supported by MinGW, MinGW-w64, clang). While different, these ABIs are still very compatible with regard to types' representation: all fundamental types, enums, and simple structures like `A`, `B` and `C` defined in this proposal, are compatible. On the other hand, even the structure as simple as `A` could not have been used for data exchange if the two ABIs defined their `int` representation differently.
+The existing practice on most current platforms is that there is one C++ ABI specification per target architecture that is supported by most or all compilers on the platform. One notable exception is Windows, where there are two commonly used ABIs: Microsoft's (supported by MSVC, Intel compiler, clang-cl) and GCC (supported by MinGW, MinGW-w64, clang). While different, these ABIs are still very compatible with regard to types' representation: all fundamental types, enums, and simple structures like `A`, `B` and `C` defined in this proposal, are compatible. On the other hand, even a structure as simple as `A` could not have been used for data exchange if the two ABIs defined their `int` representation differently.
 
 It should also be noted that the programs that use C++ structures directly for data exchange are often parts of the same framework and are compiled by the same compiler, thus eliminating any potential ABI incompatibility. When data exchange is supposed to be carried out with external parties, it is normal to expect a more formal description of the exchange protocol that does not include any C/C++ structures.
 
@@ -302,10 +302,10 @@ The currently widespread compilers (GCC 6.2, Clang 3.8, MSVC 19) all support `of
 
 Since the standard does not currently define a suitable category of types, this proposal introduces the definition of a *stable-layout class*, which is a class that satisfies the following conditions:
 
- - the class must not have virtual base classes
- - the class must not have virtual functions
- - the class must not have non-static data members of a class type (or an array thereof) that violates the above conditions
- - the class must not have base classes that violate the above conditions
+ - no virtual base classes
+ - no virtual functions
+ - no non-static data members of a class type (or an array thereof) that violates the above conditions
+ - no base classes that violate the above conditions
 
 Objects of a stable-layout class shall be guaranteed to occupy contiguous bytes of storage. For a stable-layout class, it shall be guaranteed that relative positions (offsets) of non-static data members are known at compile time and constant across all objects of that class. These offsets shall account for any possible padding that is added between non-static data members to achieve alignment.
 
@@ -315,7 +315,7 @@ To allow for testing if a type is a stable-layout class, this proposal also adds
 
 ## 6.2. Additional Restrictions on Member Designator
 
-The definition of `offsetof(type, member-designator)` in [support.types.layout]/1 refers to the C standard, and it only requires `&(t.member-designator)` to evaluate to an address constant (here, `t` is an object of class `type`). Since this proposal allows using `offsetof` with non-trivial types, `member-designator` can now identify a reference member. Taking address of a reference member would result in address of a referred object, which is not the intended effect of `offsetof`. For this reason, this proposal prohibits the use of references in `member-designator`; the behavior is undefined if this requirement is violated. Note that this rule applies if references are used at any level of `member-designator`, if it identifies a nested member. For example:
+The definition of `offsetof(type, member-designator)` in [support.types.layout]/1 refers to the C standard, and it only requires `&(t.member-designator)` to evaluate to an address constant (here, `t` is an object of class `type`). Since this proposal allows using `offsetof` with non-trivial types, `member-designator` can now identify a reference member. Taking the address of a reference member would result in the address of a referred object, which is not the intended effect of `offsetof`. For this reason, this proposal prohibits the use of references in a `member-designator`; the behavior is undefined if this requirement is violated. Note that this rule applies if references are used at any level of `member-designator`, if it identifies a nested member. For example:
 
 ```cpp
 struct Bad
@@ -330,16 +330,21 @@ offsetof(Bad, a.a);  // undefined behavior, Bad::a is a reference
 offsetof(Bad, x);    // ok, returns offset of Bad::x
 ```
 
-## 7. Proposed wording
+## 7. Proposed Wording
 
 The proposed wording below is given relative to N4618. Inserted text is marked like <ins>this</ins>, removed text is marked like <del>this</del>.
 
+## 7.1. Core Wording
+
 Modify [intro.object]/7:
 
+<blockquote>
 <p>Unless it is a bit-field (9.2.4), a most derived object shall have a nonzero size and shall occupy one or more bytes of storage. Base class subobjects may have zero size. An object of <del>trivially copyable or standard-layout</del><ins>stable-layout</ins> type (3.9) shall occupy contiguous bytes of storage.</p>
+</blockquote>
 
 Add a new paragraph after [class]/7:
 
+<blockquote>
 <p><ins>A <i>stable-layout class</i> is a class that:</ins>
 <ul>
 <li><ins>has no virtual base classes (10.1)</ins></li>
@@ -347,14 +352,20 @@ Add a new paragraph after [class]/7:
 <li><ins>has no non-static data members of a class type (or an array of a class type) that violates the above conditions</ins></li>
 <li><ins>has no base classes that violate the above conditions</ins></li>
 </ul>
-<ins>For any object <i>x<sub>i</sub></i> of a stable-layout class <i>X</i>, address of each non-static non-reference data member relative to the starting address of <i>x<sub>i</sub></i> shall be constant and equal to the corresponding relative address in any other <i>x<sub>j</sub></i>.</ins></p>
+<ins>For any object <i>x<sub>i</sub></i> of a stable-layout class <i>X</i>, offset in bytes of each non-static non-reference data member from the starting address of <i>x<sub>i</sub></i> shall be constant and equal to the corresponding offset in any other <i>x<sub>j</sub></i>.</ins></p>
+</blockquote>
 
 Modify [class]/8:
 
+<blockquote>
 <p>A <i>standard-layout struct</i> is a standard-layout class defined with the <i>class-key</i> <tt>struct</tt> or the <i>class-key</i> <tt>class</tt>. A <i>standard-layout union</i> is a standard-layout class defined with the <i>class-key</i> <tt>union</tt>.<ins> A <i>stable-layout struct</i> is a stable-layout class defined with the <i>class-key</i> <tt>struct</tt> or the <i>class-key</i> <tt>class</tt>. A <i>stable-layout union</i> is a stable-layout class defined with the <i>class-key</i> <tt>union</tt>.</ins></p>
+</blockquote>
+
+## 7.2. Library Wording
 
 Modify [support.types.layout]/1:
 
+<blockquote>
 <p>The macro <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) has the same semantics as the corresponding macro in the C standard library header <tt>&lt;stddef.h&gt;</tt>, but accepts a restricted set of <i>type</i><ins> and <i>member-designator</i></ins> arguments in this International Standard. Use of the <tt>offsetof</tt> macro with a <i>type</i> other than a <del>standard-layout</del><ins>stable-layout</ins> class (Clause 9) is conditionally-supported. The expression <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) is never type-dependent (14.6.2.2) and it is value-dependent (14.6.2.3) if and only if <i>type</i> is dependent. The result of applying the <tt>offsetof</tt> macro to a static data member or a function member is undefined.<ins> If <i>member-designator</i> accesses or identifies a reference data member, the result of the <tt>offsetof</tt> macro is undefined.</ins> No operation invoked by the <tt>offsetof</tt> macro shall throw an exception and <tt>noexcept(offsetof(<i>type</i>, <i>member-designator</i>))</tt> shall be <tt>true</tt>.<ins><br/>
 <i>[Example:</i></ins>
 <pre><code><ins>struct A { int n; };
@@ -383,18 +394,24 @@ void f() {
     offsetof(Q, v.n);       // the same
 }</ins></code></pre><ins><i>&mdash; end example]</i>
 </ins></p>
+</blockquote>
 
 Modify [meta.type.synop]/1. After the `is_standard_layout` type trait declaration, add the new line:
 
+<blockquote>
 <pre><code><ins>template &lt;class T&gt; struct is_stable_layout;</ins></code></pre>
+</blockquote>
 
 In the same section, after the `is_standard_layout_v` variable template declaration, add the new declaration:
 
+<blockquote>
 <pre><code><ins>template &lt;class T&gt; constexpr bool is_stable_layout_v
   = is_stable_layout&lt;T&gt;::value;</ins></code></pre>
+</blockquote>
 
 Modify [meta.unary.prop]/4, Table 42. Add a new row after `is_standard_layout` with the following contents (table header repeated for convenience):
 
+<blockquote>
 <table>
 <tr><th>Template</th><th>Condition</th><th>Precondition</th></tr>
 <tr>
@@ -405,13 +422,14 @@ struct is_stable_layout;</ins></code></pre>
 <td><ins><tt>remove_all_extents_t&lt;T&gt;</tt> shall be a complete type or (possibly cv-qualified) <tt>void</tt>.</ins></td>
 </tr>
 </table>
+</blockquote>
 
 # 8. Acknowledgements
 
  - Thanks to all paricipants in the discussion of the proposal at the [std-discussion] and [std-proposals] mailing lists, and in particular to "Myriachan" &lt;myriachan at gmail dot com&gt; for the suggested example showing that trivially-copyable types should be supported by `offsetof`.
- - Thanks to Walter E Brown, PhD for the help with preparing and presenting the proposal.
+ - Thanks to Walter E Brown for the help with preparing and presenting the proposal.
 
 # 9. References
 
- - [N4618 Working Draft, Standard for Programming Language C++](http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/n4618.pdf)
- - [Itanium C++ ABI](https://mentorembedded.github.io/cxx-abi/abi.html)
+ - N4618 Working Draft, Standard for Programming Language C++ ([http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/n4618.pdf](http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/n4618.pdf))
+ - Itanium C++ ABI ([https://mentorembedded.github.io/cxx-abi/abi.html](https://mentorembedded.github.io/cxx-abi/abi.html))
