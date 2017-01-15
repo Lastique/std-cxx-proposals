@@ -353,10 +353,10 @@ Add a new paragraph after [class]/7:
 <blockquote>
 <p><ins>A <i>stable-layout class</i> is a class that:</ins>
 <ul>
-<li><ins>has no virtual base classes (10.1)</ins></li>
-<li><ins>has no virtual functions (10.3)</ins></li>
-<li><ins>has no non-static data members of types other than a stable-layout type (3.9) or a reference (3.9.2)</ins></li>
-<li><ins>has no non-stable-layout base classes</ins></li>
+<li><ins>has no virtual base classes (10.1),</ins></li>
+<li><ins>has no virtual functions (10.3),</ins></li>
+<li><ins>has no non-static data members of types other than a stable-layout type (3.9) or a reference (3.9.2), and</ins></li>
+<li><ins>has no non-stable-layout base classes.</ins></li>
 </ul>
 <ins>Given an object <i>x<sub>i</sub></i> of a stable-layout class <i>X</i>, for each non-static non-reference data member <i>m<sub>j</sub></i> of <i>X</i>, offset in bytes from the address of <i>x<sub>i</sub></i> to the address of <i>m<sub>j</sub></i> within <i>x<sub>i</sub></i> shall be constant and equal to the corresponding offset in any other object of class <i>X</i>.</ins></p>
 </blockquote>
@@ -425,7 +425,7 @@ Modify [meta.unary.prop]/4, Table 42. Add a new row after `is_standard_layout` w
 struct is_stable_layout;</ins></code></pre>
 </td>
 <td><ins><tt>T</tt> is a stable-layout type (3.9)</tt></ins></td>
-<td><ins><tt>remove_all_extents_t&lt;T&gt;</tt> shall be a complete type or (possibly cv-qualified) <tt>void</tt>.</ins></td>
+<td><ins><tt>remove_all_extents_t&lt;T&gt;</tt> shall be a complete type or <i>cv</i> <tt>void</tt>.</ins></td>
 </tr>
 </table>
 </blockquote>
