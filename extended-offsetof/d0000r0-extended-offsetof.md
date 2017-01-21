@@ -433,7 +433,7 @@ struct is_stable_layout;</ins></code></pre>
 # 8. Acknowledgements
 
  - Thanks to all paricipants in the discussion of the proposal at the [std-discussion] and [std-proposals] mailing lists, and in particular to "Myriachan" &lt;myriachan at gmail dot com&gt; for the suggested example showing that trivially-copyable types should be supported by `offsetof`.
- - Thanks to Walter E Brown for the help with preparing and presenting the proposal.
+ - Thanks to Walter E. Brown for the help with preparing and presenting the proposal.
 
 # 9. References
 
