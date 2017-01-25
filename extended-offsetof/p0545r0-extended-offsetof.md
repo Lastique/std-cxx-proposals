@@ -1,6 +1,6 @@
 <table>
 <tr><td>Title:</td><td>Supporting <tt>offsetof</tt> for Stable-layout Classes</td></tr>
-<tr><td>Document number:</td><td>DnnnnR0</td></tr>
+<tr><td>Document number:</td><td>P0545R0</td></tr>
 <tr><td>Date:</td><td>2016-10-23</td></tr>
 <tr><td>Project:</td><td>ISO JTC1/SC22/WG21: Programming Language C++</td></tr>
 <tr><td>Audience:</td><td>LEWG, EWG</td></tr>
