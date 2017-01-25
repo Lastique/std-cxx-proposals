@@ -286,7 +286,7 @@ The type `C` is no longer trivially-copyable, but is it no longer viable for int
 
 The most common implementation of virtual functions involves a virtual function table (vtable), a pointer to which is stored as a hidden data member in class objects. The size and position of this hidden member is constant, so in most cases virtual functions do not preclude `offsetof` from working as expected. In fact, some implementations (GCC 6.2, Clang 3.8, MSVC 19) do support `offsetof` with classes having virtual functions.
 
-However, it is possible that other implementations exist. For instance, an implementation could use another hidden field that would contain an offset to data members of the final class object. Also, classes with virtual functions are not applicable for interprocess communication as described in the motivating example. For these reasons this proposal does not require support for classes with virtual functions and leaves it conditionally-supported. A future proposal could require such support if the need appears.
+However, it is possible that other implementations exist. For instance, an implementation could use another hidden field that would contain an offset to data members of the final class object. Also, classes with virtual functions are not applicable for interprocess communication as described in the motivating example. For these reasons this proposal does not require support for classes with virtual functions and leaves them conditionally-supported. A future proposal could require such support if the need appears.
 
 ## 4.4. Classes with Virtual Base Classes
 
@@ -309,9 +309,9 @@ Since the standard does not currently define a suitable category of types, this 
 
 Objects of a stable-layout class shall be guaranteed to occupy contiguous bytes of storage. For a stable-layout class, it shall be guaranteed that relative positions (offsets) of non-static data members are known at compile time and constant across all objects of that class. These offsets shall account for any possible padding that is added between non-static data members to achieve alignment.
 
-Note that this definition includes trivially copyable and standard-layout types.
+Note that this definition includes trivially copyable and standard-layout classes. Scalar types, stable-layout class types, arrays thereof and cv-qualified versions of those types shall be collectively called *stable-layout types*.
 
-To allow for testing if a type is a stable-layout class, this proposal also adds a new type trait `is_stable_layout`.
+To allow for testing if a type is a stable-layout type, this proposal also adds a new type trait `is_stable_layout`.
 
 ## 6.2. Additional Restrictions on Member Designator
 
