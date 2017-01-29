@@ -330,7 +330,7 @@ offsetof(Bad, a.a);  // undefined behavior, Bad::a is a reference
 offsetof(Bad, x);    // ok, returns offset of Bad::x
 ```
 
-## 7. Proposed Wording
+# 7. Proposed Wording
 
 The proposed wording below is given relative to N4618. Inserted text is marked like <ins>this</ins>, removed text is marked like <del>this</del>.
 
