@@ -302,15 +302,13 @@ Provided the above, it is possible to to calculate the offset of a data member a
 
 <blockquote><p>
 The macros are [...]; and
-<pre><code>
-offsetof(<i>type</i>, <i>member-designator</i>)
+<pre><code>offsetof(<i>type</i>, <i>member-designator</i>)
 </code></pre>
 which expands to an integer constant expression that has type <tt>size_t</tt>, the value of
 which is the offset in bytes, to the structure member (designated by <i>member-designator</i>),
 from the beginning of its structure (designated by <i>type</i>). The type and member designator
 shall be such that given
-<pre><code>
-static <i>type</i> t;
+<pre><code>static <i>type</i> t;
 </code></pre>
 then the expression <tt>&amp;(t.<i>member-designator</i>)</tt> evaluates to an address constant. (If the
 specified member is a bit-field, the behavior is undefined.)
