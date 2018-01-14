@@ -1,8 +1,3 @@
-<style type='text/css'>
-del { text-decoration: line-through; color: #aa0000; }
-ins { text-decoration: underline; color: #00aa00; }
-</style>
-
 <table>
 <tr><td>Title:</td><td>Extending <tt>offsetof</tt> for All Classes</td></tr>
 <tr><td>Document number:</td><td>D0000R0</td></tr>
