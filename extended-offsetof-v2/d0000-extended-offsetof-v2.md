@@ -13,31 +13,27 @@ This proposal extends the set of types `offsetof` is required to support to all 
 
 This paper inherits much of the motivation presented in [P0545R0](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0545r0.html) and refers to that document to avoid duplication. Some of the sections from that proposal are updated by this proposal, as noted in the text.
 
-# 2. Motivation and Scope
+# 2. Impact on the Standard
 
-## 2.1. Classes with Virtual Functions and Virtual Base Classes
+This proposal is a pure extension to the C++ language and standard library. Its intent is to define behavior that was previously not defined, in a way that most current implementations already work. No existing valid portable code is made invalid or changes its behavior.
+
+# 3. Design Decisions
+
+## 3.1. Trivially-copyable and Non-trivially-copyable Types
+
+[P0545R0](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0545r0.html), Sections 4.1 and 4.2, described that trivially-copyable types are already de-facto required to be compatible with `offsetof` by the current standard. Presence of non-trivial copy constructors and assignment operators also pose no difference to the object data layout in the current implementations. This makes those categories of types an easy extension.
+
+## 3.2. Classes with Virtual Functions and/or Virtual Base Classes
 
 Unlike [P0545R0](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0545r0.html), this proposal aims to add `offsetof` support for all classes, including those with virtual functions and virtual base classes. Although such classes are not suitable for data exchange, there may be use cases where `offsetof` would still be useful. For example, an algorithm supporting heterogenous input (e.g. elements of different types in a heterogenous intrusive sequence) could be implemented more efficiently if it had information about offsets to the relevant data in the elements of the sequence. The alternative implementations typically involve some sort of visitation and dynamic dispatch, which is likely more expensive in terms of performance and code size than pointer manipulation using offsets.
 
 Another reason to support `offsetof` for as many categories of types as possible is to reduce the learning curve for less experienced programmers. The topic of `offsetof`, including why it doesn't support types other than standard-layout classes, is recurring on resources like StackOverflow ([a](https://stackoverflow.com/questions/1129894/why-cant-you-use-offsetof-on-non-pod-structures-in-c) [few](https://stackoverflow.com/questions/13180842/how-to-calculate-offset-of-a-class-member-at-compile-time) [examples](https://stackoverflow.com/questions/177885/looking-for-something-similar-to-offsetof-for-non-pod-types)). There is clearly a need in such functionality, and the lack of official support by the standard `offsetof` leads to attempts to work around the limitation, often involving undefined behavior and non-portable compiler-specific tricks.
 
-# 3. Impact on the Standard
-
-This proposal is a pure extension to the C++ language and standard library. Its intent is to define behavior that was previously not defined, in a way that most current implementations already work. No existing valid portable code is made invalid or changes its behavior.
-
-# 4. Design Decisions
-
-## 4.1. Trivially-copyable and Non-trivially-copyable Types
-
-[P0545R0](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0545r0.html), Sections 4.1 and 4.2, described that trivially-copyable types are already de-facto required to be compatible with `offsetof` by the current standard. Presence of non-trivial copy constructors and assignment operators also pose no difference to the object data layout in the current implementation. This makes those categories of types an easy extension.
-
-## 4.2. Classes with Virtual Functions and/or Virtual Base Classes
-
-The most common implementation of virtual functions involves a virtual function table (vtable), a pointer to which is stored as a hidden data member in class objects. Like virtual functions, virtual base classes also typically introduce a hidden data member (vtordisp). This member is used to obtain the address of the virtual base class subobject at runtime. The size and position of these hidden members are constant, so they do not preclude `offsetof` from working as expected.
+The most common implementation of virtual functions involves a virtual function table (vftable), a pointer to which is stored as a hidden data member in class objects. Like virtual functions, virtual base classes also typically introduce a hidden data member (vbtable). This member is used to obtain the address of the virtual base class subobject at runtime. When both virtual functions and virtual base classes are used, some compilers may add yet another hidden member (vtordisp). The size and position of these hidden members are constant, so they do not preclude `offsetof` from working as expected.
 
 It is possible that other implementations of virtual functions or virtual base classes exist. However, the author is not aware of implementations that make non-static data member layout for a given class a runtime property that is not available at compile time. Such a design would compilcate ABI definition and likely have significant performance consequences with no apparent benefits. Therefore, the author considers such a design unlikely to be implemented and not worth allowing for, compared to the benefit from the improved support for `offsetof`.
 
-Provided the above, it is possible to to calculate the offset of a data member at compile time given that the final type of the complete object is known. In this case the compiler has full knowledge of layout of non-static data members in the object and does not require runtime resolution of the address of the base class subobject. Fortunately, the way `offsetof` is defined in the [C standard](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf) (7.19/3), to which C++ refers in [support.types.layout]/1, it is compatible with this precondition:
+Provided the above, it is possible to to calculate the offset of a data member at compile time given that the type of the most derived object is known. In this case the compiler has full knowledge of layout of non-static data members in the object and does not require runtime resolution of the address of the base class subobject. Fortunately, the way `offsetof` is defined in the [C standard](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf) (7.19/3), to which C++ refers in [support.types.layout]/1, it is compatible with this precondition:
 
 <blockquote><p>
 The macros are [...]; and
@@ -53,34 +49,86 @@ then the expression <tt>&amp;(t.<i>member-designator</i>)</tt> evaluates to an a
 specified member is a bit-field, the behavior is undefined.)
 </p></blockquote>
 
-The object `t` in this definition is the complete object that has the type that is specified as the first argument of `offsetof`.
+There are no base subobjects in C, so in terms of C++ the structure *type* can only be the most derived class. Also, the object `t` in this definition is the complete object of type *type*.
 
-## 4.2.1. Abstract Classes
+## 3.2.1. Abstract Classes
 
-Complete objects of abstract classes cannot be created, which puts them in conflict with the literal `offsetof` definition given in the C standard and quoted above. However, the object that is used in the definition is only given for the purpose of the definition itself; invoking `offsetof` does not result in creation of the object of class *type*. The presence of pure virtual functions does not affect data layout compared to regular virtual functions. Therefore, this proposal does not exclude abstract classes from `offsetof` support.
+Complete objects of abstract classes cannot be created, which puts them in conflict with the literal `offsetof` definition given in the C standard and quoted above. However, the object that is used in the definition is only given for the purpose of the definition itself; invoking `offsetof` does not result in creation of the object of class *type*. The presence of pure virtual functions does not affect data layout compared to regular virtual functions. 
 
-## 4.3. Reference Data Members
-
-The definition of `offsetof(type, member-designator)` in [support.types.layout]/1 refers to the C standard, and it only requires `&(t.member-designator)` to evaluate to an address constant (here, `t` is an object of class `type`). Since this proposal allows using `offsetof` with non-trivial types, `member-designator` can now identify a reference member. Taking the address of a reference member would result in the address of a referred object, which is not the intended effect of `offsetof`. For this reason, this proposal prohibits the use of references in a `member-designator`; the behavior is undefined if this requirement is violated. Note that this rule applies if references are used at any level of `member-designator`, if it identifies a nested member. For example:
+The result of `offsetof` applied to an abstract class can be useful, if it can be used to adjust a pointer to a base subobject of that class. For example:
 
 ```cpp
-struct Bad
+struct Base
 {
-    int& n;
-    A& a;
-    int x;
+    int n;
+
+    virtual void foo() = 0;
 };
 
-offsetof(Bad, n);    // undefined behavior, Bad::n is a reference
-offsetof(Bad, a.a);  // undefined behavior, Bad::a is a reference
-offsetof(Bad, x);    // ok, returns offset of Bad::x
+struct Derived1 : public Base
+{
+    float x;
+
+    void foo() override;
+};
+
+struct Derived2 : public Derived1
+{
+    std::string str;
+
+    void foo() override;
+};
+
+Derived1 d1;
+Derived2 d2;
+
+constexpr std::size_t offset = offsetof(Base, n); // ok, works as if Base::foo was not marked as pure virtual, but only virtual
+int* p1 = reinterpret_cast<int*>(reinterpret_cast<std::byte*>(static_cast<Base*>(&d1)) + offset); // points to d1.n
+int* p2 = reinterpret_cast<int*>(reinterpret_cast<std::byte*>(static_cast<Base*>(&d2)) + offset); // points to d2.n
 ```
 
-## 4.4. Object Storage and Data Member Layout
+This becomes possible if we require base class subobjects to be contiguous and have the same layout in every most derived object (section 3.3 expands more on that). This requirement is currently fulfilled in every implementation the author is familiar with, unless the base class has virtual base classes itself. In this case the placement of the virtual base subobject in the storage typically depends on the most derived object size and layout. But when the most derived object has no non-static data members or other base classes of non-zero size (i.e. its size is equal to the base class subobject), the `offsetof` result is still valid.
+
+```cpp
+struct BaseData
+{
+    int n;
+};
+
+struct Base : virtual public BaseData
+{
+    virtual void foo() = 0;
+};
+
+struct Good : public Base
+{
+    // No non-static data members or base classes other than Base, sizeof(Good) == sizeof(Base)
+
+    void foo() override;
+};
+
+struct Bad : public Base
+{
+    float x;
+
+    void foo() override;
+};
+
+Good g;
+Bad b;
+
+constexpr std::size_t offset = offsetof(Base, n); // still ok, works as if Base::foo was not marked as pure virtual, but only virtual
+int* p1 = reinterpret_cast<int*>(reinterpret_cast<std::byte*>(static_cast<Base*>(&g)) + offset); // ok, points to g.n
+int* p2 = reinterpret_cast<int*>(reinterpret_cast<std::byte*>(static_cast<Base*>(&b)) + offset); // bad, does not point to b.n because the location of BaseData may not be adjacent to Base
+```
+
+The author believes that `offsetof` is still useful with classes like `Good`. The broken uses with classes like `Bad` could potentially be diagnosed with a warning, if the compiler is able to track the actual type of the pointed object. However, the warning is not a requirement imposed by this proposal and is left as an aspect of quality of implementation.
+
+## 3.3. Object Storage and Data Member Layout
 
 In order for `offsetof` to be able to operate and provide a useful result, certain requirements must be fulfilled:
 
- - most derived objects ([intro.object]/6) of a class compatible with `offsetof` must occupy a contiguous region of storage, and
+ - objects of a class compatible with `offsetof` must occupy a contiguous region of storage, and
  - offsets to non-static data members of such class must be constant and not depend on a particular most derived object of that class (this proposal refers to this property as *offset stability* or *stability of offsets*).
 
 The first requirement allows to obtain the offset information and then apply it to an object and the second requirement guarantees that the information can be applied to any most derived object of that class.
@@ -111,11 +159,11 @@ Both `v` and `y` are required to occupy contiguous bytes of storage, but the sub
 
 ```
 -----
-|*V*|
+|*V*|   includes V::b
 -----
-| Y |
+| Y |   includes Y::c
 -----
-|*X*|
+|*X*|   includes X::a
 -----
 ```
 
@@ -125,7 +173,24 @@ Note also that the requirement of contiguous storage does not mean that any impl
 
 The standard has no explicit provision about stability of offsets of non-static data members across different objects of a class. For trivially copyable classes the data member offsets are required to be stable, as discussed in [P0545R0](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0545r0.html). For standard-layout classes the current definition of `offsetof` implies that members of such classes must have stable offsets. By extending `offsetof` to support other class types, this proposal requires that member offsets are stable for all classes.
 
-# 5. Impact on Existing Implementations
+## 3.4. Reference Data Members
+
+The definition of `offsetof(type, member-designator)` in the C standard only requires `&(t.member-designator)` to evaluate to an address constant (here, `t` is an object of class `type`). Since this proposal allows using `offsetof` with non-trivial types, `member-designator` can now identify a reference member. Taking the address of a reference member would result in the address of the referred object, which is not the intended effect of `offsetof`. For this reason, this proposal prohibits the use of references in a `member-designator`; the behavior is undefined if this requirement is violated. Note that this rule applies if references are used at any level of `member-designator`, if it identifies a nested member. For example:
+
+```cpp
+struct Bad
+{
+    int& n;
+    A& a;
+    int x;
+};
+
+offsetof(Bad, n);    // undefined behavior, Bad::n is a reference
+offsetof(Bad, a.a);  // undefined behavior, Bad::a is a reference
+offsetof(Bad, x);    // ok, returns offset of Bad::x
+```
+
+# 4. Impact on Existing Implementations
 
 The currently widespread compilers (GCC 7.2, Clang 4.0.1, MSVC 19.12.25831) all support `offsetof` for classes `A`, `B` and `C` described above, as well as classes with virtual functions (including pure virtual functions), although some of the compilers emit warnings, as currently required by [N4713](http://open-std.org/JTC1/SC22/WG21/docs/papers/2017/n4713.pdf). This proposal makes all classes supported unconditionally, which will remove the need for a warning.
 
@@ -148,11 +213,11 @@ In the above example, all three tested compilers were able to compile all `offse
 
 Other than the case (1), all tested compilers appeared to return values that are aligned with this proposal (i.e. the returned values were equal to the offset to the requested member in a *complete* object of the specified type). Therefore, even programs that previously relied on implementation-specific behavior of `offsetof` are unlikely to be affected.
 
-# 6. Proposed Wording
+# 5. Proposed Wording
 
 The proposed wording below is given relative to [N4713](http://open-std.org/JTC1/SC22/WG21/docs/papers/2017/n4713.pdf). Inserted text is marked like <ins>this</ins>, removed text is marked like <del>this</del>.
 
-## 6.1. Core Wording
+## 5.1. Core Wording
 
 Modify [intro.object]/7:
 
@@ -160,19 +225,19 @@ Modify [intro.object]/7:
 <p>Unless it is a bit-field (12.2.4), a most derived object shall have a nonzero size and shall occupy one or more bytes of storage. Base class subobjects may have zero size. A<del>n</del><ins> most derived</ins> object <del>of trivially copyable or standard-layout type (6.7)</del><ins>or a base class subobject of nonzero size excluding any of its virtual base class (13.1) subobjects</ins> shall occupy contiguous bytes of storage.<ins> A virtual base class subobject may occupy a distinct non-adjacent contiguous region of storage from the rest of its containing base class subobject. Each such region of storage shall be within the enclosing contiguous region of storage occupied by the containing most derived object.</ins></p>
 </blockquote>
 
-## 6.2. Library Wording
+## 5.2. Library Wording
 
 Modify [support.types.layout]/1:
 
 <blockquote>
-<p>The macro <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) has the same semantics as the corresponding macro in the C standard library header <tt>&lt;stddef.h&gt;</tt>, <del>but accepts a restricted set of <i>type</i> arguments in this International Standard. Use of the <tt>offsetof</tt> macro with a <i>type</i> other than a standard-layout class (Clause 12) is conditionally-supported</del><ins>with the following additions</ins>. The expression <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) is never type-dependent (17.7.2.2) and it is value-dependent (17.7.2.3) if and only if <i>type</i> is dependent. The result of applying the <tt>offsetof</tt> macro to a static data member or a function member is undefined.<ins> Given the object <tt>t</tt> of type <i>type</i>, if <tt>t.<i>member-designator</i></tt> accesses or identifies a reference data member, the result of the <tt>offsetof</tt> macro is undefined.</ins> No operation invoked by the <tt>offsetof</tt> macro shall throw an exception and <tt>noexcept(offsetof(<i>type</i>, <i>member-designator</i>))</tt> shall be <tt>true</tt>.</p>
+<p>The macro <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) has the same semantics as the corresponding macro in the C standard library header <tt>&lt;stddef.h&gt;</tt>, <del>but accepts a restricted set of <i>type</i> arguments in this International Standard. Use of the <tt>offsetof</tt> macro with a <i>type</i> other than a standard-layout class (Clause 12) is conditionally-supported</del><ins>with the following additions</ins>. <ins>The argument <i>type</i> is interpreted as the most derived class (6.6.2). <i>[Note:</i> For the purpose of this definition, all <i>pure-specifiers</i> (12.2) in member function declarations of <i>type</i> and its base classes are ignored. <i>&mdash; end note]</i> </ins>The expression <tt>offsetof</tt>(<i>type</i>, <i>member-designator</i>) is never type-dependent (17.7.2.2) and it is value-dependent (17.7.2.3) if and only if <i>type</i> is dependent. The result of applying the <tt>offsetof</tt> macro to a static data member or a function member is undefined.<ins> Given the object <tt>t</tt> of type <i>type</i>, if <tt>t.<i>member-designator</i></tt> accesses or identifies a reference data member, the result of the <tt>offsetof</tt> macro is undefined.</ins> No operation invoked by the <tt>offsetof</tt> macro shall throw an exception and <tt>noexcept(offsetof(<i>type</i>, <i>member-designator</i>))</tt> shall be <tt>true</tt>.</p>
 </blockquote>
 
-# 7. Acknowledgements
+# 6. Acknowledgements
 
  - Thanks to Walter E. Brown for the help with preparing and presenting the proposal.
 
-# 8. References
+# 7. References
 
  - P0545R0 proposal, Supporting <tt>offsetof</tt> for Stable-layout Classes ([http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0545r0.html](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0545r0.html))
  - N4713 Working Draft, Standard for Programming Language C++ ([http://open-std.org/JTC1/SC22/WG21/docs/papers/2017/n4713.pdf](http://open-std.org/JTC1/SC22/WG21/docs/papers/2017/n4713.pdf))
