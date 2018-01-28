@@ -176,6 +176,11 @@ The standard has no explicit provision about stability of offsets of non-static 
 The definition of `offsetof(type, member-designator)` in the C standard only requires `&(t.member-designator)` to evaluate to an address constant (here, `t` is an object of class `type`). Since this proposal allows using `offsetof` with non-trivial types, `member-designator` can now identify a reference member. Taking the address of a reference member would result in the address of the referred object, which is not the intended effect of `offsetof`. For this reason, this proposal prohibits the use of references in a `member-designator`; the behavior is undefined if this requirement is violated. Note that this rule applies if references are used at any level of `member-designator`, if it identifies a nested member. For example:
 
 ```cpp
+struct A
+{
+    int a;
+};
+
 struct Bad
 {
     int& n;
@@ -190,11 +195,16 @@ offsetof(Bad, x);    // ok, returns offset of Bad::x
 
 # 4. Impact on Existing Implementations
 
-The currently widespread compilers (GCC 7.2, Clang 4.0.1, MSVC 19.12.25831) all support `offsetof` for classes `A`, `B` and `C` described above, as well as for classes with virtual functions (including pure virtual functions), although some of the compilers emit warnings, as currently required by [N4713](http://open-std.org/JTC1/SC22/WG21/docs/papers/2017/n4713.pdf). This proposal makes all classes supported unconditionally, which will remove the need for a diagnostic.
+The currently widespread compilers (GCC 7.2, Clang 4.0.1, MSVC 19.12.25831) all support `offsetof` for trivially copyable and non-trivially classes, as well as for classes with virtual functions (including pure virtual functions), although some of the compilers emit warnings, as currently required by [N4713](http://open-std.org/JTC1/SC22/WG21/docs/papers/2017/n4713.pdf). This proposal makes all classes supported unconditionally, which will remove the need for a diagnostic.
 
 The tested compilers also have limited support for `offsetof` with classes with virtual base classes.
 
 ```cpp
+struct A
+{
+    int a;
+};
+
 struct D : virtual public A
 {
     int c;
