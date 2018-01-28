@@ -1,6 +1,6 @@
 <table>
 <tr><td>Title:</td><td>Supporting <tt>offsetof</tt> for All Classes</td></tr>
-<tr><td>Document number:</td><td>D0000R0</td></tr>
+<tr><td>Document number:</td><td>P0897R0</td></tr>
 <tr><td>Date:</td><td>2018-01-05</td></tr>
 <tr><td>Project:</td><td>ISO JTC1/SC22/WG21: Programming Language C++</td></tr>
 <tr><td>Audience:</td><td>EWG, LEWG</td></tr>
