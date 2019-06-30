@@ -31,8 +31,7 @@ Modify [span.overview]/2:
 
 <blockquote>
 <p>All member functions of span have constant time complexity.</p>
-<code><pre>
-namespace std {
+<p><code><pre>namespace std {
   template&lt;class ElementType, size_t Extent = dynamic_extent&gt;
   class span {
   public:
@@ -125,9 +124,7 @@ namespace std {
   span(Container&amp;) -&gt; span&lt;typename Container::value_type&gt;;
   template&lt;class Container&gt;
   span(const Container&amp;) -&gt; span&lt;const typename Container::value_type&gt;;
-}
-</pre></code>
-</p>
+}</pre></code></p>
 </blockquote>
 
 Modify constructor descriptions in [span.cons] accordingly:
