@@ -1,37 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>span-size_type</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">del { text-decoration: line-through; color: #aa0000; }
+ins { text-decoration: underline; color: #00aa00; }
+</style>
+</head>
+<body>
 <table>
-<tr><td>Title:</td><td>Rename <tt>index_type</tt> to <tt>size_type</tt> in <tt>std::span</tt></td></tr>
-<tr><td>Document number:</td><td>D0000R0</td></tr>
-<tr><td>Date:</td><td>2019-30-06</td></tr>
-<tr><td>Project:</td><td>ISO JTC1/SC22/WG21: Programming Language C++</td></tr>
-<tr><td>Audience:</td><td>LWG</td></tr>
-<tr><td>Reply-to:</td><td>Andrey Semashev &lt;andrey.semashev at gmail dot com&gt;</td></tr>
+<tr>
+<td>
+Title:
+</td>
+<td>
+Rename <tt>index_type</tt> to <tt>size_type</tt> in <tt>std::span</tt>
+</td>
+</tr>
+<tr>
+<td>
+Document number:
+</td>
+<td>
+D0000R0
+</td>
+</tr>
+<tr>
+<td>
+Date:
+</td>
+<td>
+2019-30-06
+</td>
+</tr>
+<tr>
+<td>
+Project:
+</td>
+<td>
+ISO JTC1/SC22/WG21: Programming Language C++
+</td>
+</tr>
+<tr>
+<td>
+Audience:
+</td>
+<td>
+LWG
+</td>
+</tr>
+<tr>
+<td>
+Reply-to:
+</td>
+<td>
+Andrey Semashev &lt;andrey.semashev at gmail dot com&gt;
+</td>
+</tr>
 </table>
-
-# 1. Proposal
-
-This proposal modifies the `std::span` class template to be more compatible with other range types in the standard library and other widespread libraries, like Boost and Qt. Specifically, this document proposes to rename the `index_type` member type of `span` to `size_type`. The type is still an alias to `size_t` and has the same usage as before.
-
-# 2. Rationale
-
-The convention, where a range type, such as container, string or view, has a member type named `size_type` that is used to convey the number of elements and index into the sequence, is long established and widely used throughout the standard library and beyond. All standard containers and even container adaptors, strings (including `string_view`), `array`, `initializer_list`, containers and ranges in Boost and Qt libraries &mdash; all follow this convention, except `span`. The convention has been followed for many years, and there is arguably a lot of existing code relying on it. There is no reason for `span` to not follow it as well, as it will make it more compatible with generic code relying on the `size_type` member type.
-
-# 3. Impact on the Standard
-
-This proposal modifies a new component of the standard library, which has not been published in a final specification yet.
-
-# 4. Impact on Existing Implementations
-
-According to [cppreference.com](https://en.cppreference.com/w/cpp/compiler_support), the only major standard library that implements `span` is Clang libc++, starting with version 7. That implementation has evolved over time, and currently (as of 2019-06-30) defines `index_type` member type as an alias for `size_t`. That implementation will need to be changed to define `size_type`, which is trivial and can be made in a backward compatible way by also keeping `index_type`, should libc++ maintainers choose so.
-
-# 5. Proposed Wording
-
-The proposed wording below is given relative to [N4830](http://open-std.org/JTC1/SC22/WG21/docs/papers/2019/n4830.pdf). Inserted text is marked like <ins>this</ins>, removed text is marked like <del>this</del>.
-
-Modify [span.overview]/2:
-
+<h1 id="proposal">1. Proposal</h1>
+<p>This proposal modifies the <code>std::span</code> class template to be more compatible with other range types in the standard library and other widespread libraries, like Boost and Qt. Specifically, this document proposes to rename the <code>index_type</code> member type of <code>span</code> to <code>size_type</code>. The type is still an alias to <code>size_t</code> and has the same usage as before.</p>
+<h1 id="rationale">2. Rationale</h1>
+<p>The convention, where a range type, such as container, string or view, has a member type named <code>size_type</code> that is used to convey the number of elements and index into the sequence, is long established and widely used throughout the standard library and beyond. All standard containers and even container adaptors, strings (including <code>string_view</code>), <code>array</code>, <code>initializer_list</code>, containers and ranges in Boost and Qt libraries — all follow this convention, except <code>span</code>. The convention has been followed for many years, and there is arguably a lot of existing code relying on it. There is no reason for <code>span</code> to not follow it as well, as it will make it more compatible with generic code relying on the <code>size_type</code> member type.</p>
+<h1 id="impact-on-the-standard">3. Impact on the Standard</h1>
+<p>This proposal modifies a new component of the standard library, which has not been published in a final specification yet.</p>
+<h1 id="impact-on-existing-implementations">4. Impact on Existing Implementations</h1>
+<p>According to <a href="https://en.cppreference.com/w/cpp/compiler_support">cppreference.com</a>, the only major standard library that implements <code>span</code> is Clang libc++, starting with version 7. That implementation has evolved over time, and currently (as of 2019-06-30) defines <code>index_type</code> member type as an alias for <code>size_t</code>. That implementation will need to be changed to define <code>size_type</code>, which is trivial and can be made in a backward compatible way by also keeping <code>index_type</code>, should libc++ maintainers choose so.</p>
+<h1 id="proposed-wording">5. Proposed Wording</h1>
+<p>The proposed wording below is given relative to <a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2019/n4830.pdf">N4830</a>. Inserted text is marked like <ins>this</ins>, removed text is marked like <del>this</del>.</p>
+<p>Modify [span.overview]/2:</p>
 <blockquote>
-<p>All member functions of span have constant time complexity.</p>
-<p><code><pre>namespace std {
+<p>
+All member functions of span have constant time complexity.
+</p>
+<p>
+<code>
+<pre>namespace std {
   template&lt;class ElementType, size_t Extent = dynamic_extent&gt;
   class span {
   public:
@@ -42,8 +94,8 @@ Modify [span.overview]/2:
     using difference_type = ptrdiff_t;
     using pointer = element_type*;
     using const_pointer = const element_type*;
-    using reference = element_type&;
-    using const_reference = const element_type&;
+    using reference = element_type&amp;;
+    using const_reference = const element_type&amp;;
     using iterator = <i>implementation-defined</i>; // see 22.7.3.6
     using const_iterator = <i>implementation-defined</i>;
     using reverse_iterator = std::reverse_iterator&lt;iterator&gt;;
@@ -70,7 +122,7 @@ Modify [span.overview]/2:
 
     ~span() noexcept = default;
 
-    constexpr span& operator=(const span&amp; other) noexcept = default;
+    constexpr span&amp; operator=(const span&amp; other) noexcept = default;
 
     // 22.7.3.3, subviews
     template&lt;size_t Count&gt;
@@ -124,45 +176,38 @@ Modify [span.overview]/2:
   span(Container&amp;) -&gt; span&lt;typename Container::value_type&gt;;
   template&lt;class Container&gt;
   span(const Container&amp;) -&gt; span&lt;const typename Container::value_type&gt;;
-}</pre></code></p>
+}</pre>
+</code>
+</p>
 </blockquote>
-
-Modify constructor descriptions in [span.cons] accordingly:
-
+<p>Modify constructor descriptions in [span.cons] accordingly:</p>
 <blockquote>
 <tt>constexpr span(pointer ptr, <del>index_type</del><ins>size_type</ins> count);</tt>
 </blockquote>
-
-Modify member descriptions in [span.sub] accordingly:
-
+<p>Modify member descriptions in [span.sub] accordingly:</p>
 <blockquote>
 <tt>constexpr span&lt;element_type, dynamic_extent&gt; first(<del>index_type</del><ins>size_type</ins> count) const;</tt>
 </blockquote>
-
 <blockquote>
 <tt>constexpr span&lt;element_type, dynamic_extent&gt; last(<del>index_type</del><ins>size_type</ins> count) const;</tt>
 </blockquote>
-
 <blockquote>
 <tt>constexpr span&lt;element_type, dynamic_extent&gt; subspan(<del>index_type</del><ins>size_type</ins> offset, <del>index_type</del><ins>size_type</ins> count = dynamic_extent) const;</tt>
 </blockquote>
-
-Modify observer descriptions in [span.obs] accordingly:
-
+<p>Modify observer descriptions in [span.obs] accordingly:</p>
 <blockquote>
 <tt>constexpr <del>index_type</del><ins>size_type</ins> size() const noexcept;</tt>
 </blockquote>
-
 <blockquote>
 <tt>constexpr <del>index_type</del><ins>size_type</ins> size_bytes() const noexcept;</tt>
 </blockquote>
-
-Modify element access descriptions in [span.elem] accordingly:
-
+<p>Modify element access descriptions in [span.elem] accordingly:</p>
 <blockquote>
 <tt>constexpr reference operator[](<del>index_type</del><ins>size_type</ins> idx) const;</tt>
 </blockquote>
-
-# 6. References
-
- - N4830 Working Draft, Standard for Programming Language C++ ([http://open-std.org/JTC1/SC22/WG21/docs/papers/2019/n4830.pdf](http://open-std.org/JTC1/SC22/WG21/docs/papers/2019/n4830.pdf))
+<h1 id="references">6. References</h1>
+<ul>
+<li>N4830 Working Draft, Standard for Programming Language C++ (<a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2019/n4830.pdf" class="uri">http://open-std.org/JTC1/SC22/WG21/docs/papers/2019/n4830.pdf</a>)</li>
+</ul>
+</body>
+</html>
