@@ -3,7 +3,7 @@
 <tr><td>Document number:</td><td>D0000R0</td></tr>
 <tr><td>Date:</td><td>2019-30-06</td></tr>
 <tr><td>Project:</td><td>ISO JTC1/SC22/WG21: Programming Language C++</td></tr>
-<tr><td>Audience:</td><td>LWG</td></tr>
+<tr><td>Audience:</td><td>LEWG</td></tr>
 <tr><td>Reply-to:</td><td>Andrey Semashev &lt;andrey.semashev at gmail dot com&gt;</td></tr>
 </table>
 
